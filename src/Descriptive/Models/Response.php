@@ -16,7 +16,7 @@ class Response
             'description' => $this->description,
             'application/json' => [
                 'examples' => [
-                    
+
                 ]
             ]
         ];
