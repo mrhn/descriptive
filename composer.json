@@ -1,0 +1,27 @@
+{
+    "name": "descriptive",
+    "type": "project",
+    "license": "MIT",
+    "bin": [
+        "bin/descriptive"
+    ],
+    "require": {
+        "php": "^7.3",
+        "symfony/console": "^4.3",
+        "composer/xdebug-handler": "^1.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.3",
+        "phpstan/phpstan": "^0.11.12"
+    },
+    "autoload": {
+        "psr-4": {
+            "Descriptive\\": "src/descriptive"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Test\\": "tests"
+        }
+    }
+}
