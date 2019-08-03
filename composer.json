@@ -6,7 +6,7 @@
         "bin/descriptive"
     ],
     "require": {
-        "php": "^7.3",
+        "php": "^7.2",
         "symfony/console": "^4.3",
         "composer/xdebug-handler": "^1.3"
     },
