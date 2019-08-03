@@ -23,8 +23,11 @@ class Api
                 'title' => $this->title,
                 'version' => $this->version,
             ],
-            // todo path should have the url as key
-            'paths' => array_map([new Route(), 'toArray'], $this->routes),
+            'paths' => array_reduce($this->routes, function (array $carry, Route $route) {
+                $carry[$route->path] = $route->toArray();
+
+                return $carry;
+            }, []),
         ];
     }
 

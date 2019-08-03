@@ -32,7 +32,7 @@ class Route
                     $carry[$response->status] = $response->toArray();
 
                     return $carry;
-                }),
+                }, []),
             ]
         ];
     }
