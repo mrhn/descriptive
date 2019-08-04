@@ -5,22 +5,37 @@ namespace Descriptive\Models;
 class Route
 {
     /** @var string */
+    public $id;
+
+    /** @var string */
+    public $summary;
+
+    /** @var string */
     public $path;
 
     /** @var string */
     public $method;
 
-    /** @var Request */
+    /** @var Request|null */
     public $request;
 
     /** @var Response[] */
     public $responses;
 
-    /** @var string */
-    public $id;
-
-    /** @var string */
-    public $summary;
+    /**
+     * Route constructor.
+     *
+     * @param Response[] $responses
+     */
+    public function __construct(string $id, string $summary, string $path, string $method, ?Request $request, array $responses)
+    {
+        $this->id = $id;
+        $this->summary = $summary;
+        $this->path = $path;
+        $this->method = $method;
+        $this->request = $request;
+        $this->responses = $responses;
+    }
 
     public function toArray(): array
     {
