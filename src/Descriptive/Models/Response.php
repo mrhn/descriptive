@@ -1,6 +1,4 @@
-<?php
-
-namespace Descriptive\Models;
+<?php namespace Descriptive\Models;
 
 class Response
 {
@@ -12,7 +10,7 @@ class Response
 
     public function __construct(int $status, string $description)
     {
-        $this->status = $status;
+        $this->status      = $status;
         $this->description = $description;
     }
 

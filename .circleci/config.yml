@@ -1,0 +1,13 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+    - image: circleci/php:cli
+    working_directory: ~/project
+    steps:
+    - checkout
+    - restore_cache: {keys: ['composer-{{ checksum "composer.lock" }}', composer-]}
+    - run: composer install -n -a
+    - save_cache: {paths: [vendor], key: 'composer-{{ checksum "composer.lock" }}'}
+    - run: composer ci

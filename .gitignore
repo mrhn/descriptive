@@ -1,3 +1,7 @@
-.DS_Store
 *~
+.DS_Store
+/coverage
+/clover.xml
 /vendor
+/.php_cs.cache
+/.phpunit.result.cache

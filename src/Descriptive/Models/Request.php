@@ -1,8 +1,5 @@
-<?php
-
-namespace Descriptive\Models;
+<?php namespace Descriptive\Models;
 
 class Request
 {
-
 }
