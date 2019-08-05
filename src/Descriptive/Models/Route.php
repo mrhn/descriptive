@@ -1,6 +1,4 @@
-<?php
-
-namespace Descriptive\Models;
+<?php namespace Descriptive\Models;
 
 class Route
 {
@@ -29,11 +27,11 @@ class Route
      */
     public function __construct(string $id, string $summary, string $path, string $method, ?Request $request, array $responses)
     {
-        $this->id = $id;
-        $this->summary = $summary;
-        $this->path = $path;
-        $this->method = $method;
-        $this->request = $request;
+        $this->id        = $id;
+        $this->summary   = $summary;
+        $this->path      = $path;
+        $this->method    = $method;
+        $this->request   = $request;
         $this->responses = $responses;
     }
 
@@ -42,13 +40,13 @@ class Route
         return [
             $this->method => [
                 'operationId' => $this->id,
-                'summary' => $this->summary,
-                'responses' => array_reduce($this->responses, function(array $carry, Response $response): array {
+                'summary'     => $this->summary,
+                'responses'   => array_reduce($this->responses, function (array $carry, Response $response): array {
                     $carry[$response->status] = $response->toArray();
 
                     return $carry;
                 }, []),
-            ]
+            ],
         ];
     }
 }

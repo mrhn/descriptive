@@ -1,6 +1,4 @@
-<?php
-
-namespace Descriptive\Models;
+<?php namespace Descriptive\Models;
 
 use Symfony\Component\Yaml\Yaml;
 
@@ -24,20 +22,20 @@ class Api
      */
     public function __construct(string $title, string $version, array $routes)
     {
-        $this->title = $title;
+        $this->title   = $title;
         $this->version = $version;
-        $this->routes = $routes;
+        $this->routes  = $routes;
     }
 
     public function toArray(): array
     {
         return [
             'openapi' => static::VERSION,
-            'info' => [
-                'title' => $this->title,
+            'info'    => [
+                'title'   => $this->title,
                 'version' => $this->version,
             ],
-            'paths' => array_reduce($this->routes, function (array $carry, Route $route) {
+            'paths' => array_reduce($this->routes, function (array $carry, Route $route): array {
                 $carry[$route->path] = $route->toArray();
 
                 return $carry;
