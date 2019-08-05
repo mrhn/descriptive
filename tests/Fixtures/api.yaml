@@ -1,0 +1,12 @@
+openapi: 3.0.0
+info:
+  title: 'Rest API'
+  version: '1.0'
+paths:
+  /hello/world:
+    get:
+      operationId: HelloWorld
+      summary: 'First route'
+      responses:
+        200:
+          description: ''

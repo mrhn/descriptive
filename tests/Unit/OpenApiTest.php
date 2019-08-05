@@ -20,6 +20,6 @@ class OpenApiTest extends TestCase
 
         $api = new Api('Rest API', '1.0', $routes);
 
-        file_put_contents('test.yaml', $api->toYaml());
+        $this->assertSame(file_get_contents('tests/Fixtures/api.yaml'), $api->toYaml());
     }
 }
