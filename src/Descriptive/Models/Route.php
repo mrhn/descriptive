@@ -1,4 +1,4 @@
-<?php namespace Descriptive\Models;
+<?php namespace Mrhn\Descriptive\Models;
 
 class Route
 {
