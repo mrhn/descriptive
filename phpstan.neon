@@ -54,3 +54,4 @@ parameters:
 		- src
 		- tests
 	ignoreErrors:
+		- '#Function config not found\.#'
