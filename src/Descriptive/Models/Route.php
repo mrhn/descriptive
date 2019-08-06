@@ -1,4 +1,4 @@
-<?php namespace Descriptive\Models;
+<?php namespace Mrhn\Descriptive\Models;
 
 class Route
 {
@@ -25,8 +25,14 @@ class Route
      *
      * @param Response[] $responses
      */
-    public function __construct(string $id, string $summary, string $path, string $method, ?Request $request, array $responses)
-    {
+    public function __construct(
+        string $id,
+        string $summary,
+        string $path,
+        string $method,
+        ?Request $request,
+        array $responses
+    ) {
         $this->id        = $id;
         $this->summary   = $summary;
         $this->path      = $path;

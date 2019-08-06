@@ -1,18 +1,18 @@
 {
-    "name": "Descriptive",
+    "name": "mrhn/descriptive",
     "description": "Auto generate openApi documentation for your Laravel project",
     "license": "MIT",
-    "type": "project",
-    "bin": [
-        "bin/descriptive"
+    "keywords": [
+        "openapi",
+        "laravel",
+        "swagger",
+        "generator",
+        "documentation"
     ],
     "require": {
-        "php": "^7.3",
-        "ext-ctype": "*",
-        "ext-intl": "*",
-        "ext-mbstring": "*",
-        "symfony/console": "^4.3",
-        "composer/xdebug-handler": "^1.3",
+        "illuminate/console": "^5.8",
+        "illuminate/routing": "^5.8",
+        "illuminate/support": "^5.8",
         "symfony/yaml": "^4.3"
     },
     "require-dev": {
@@ -21,21 +21,11 @@
         "phpstan/phpstan-phpunit": "^0.11.2",
         "phpstan/phpstan-strict-rules": "^0.11.1",
         "phpunit/phpunit": "^8.3",
-        "squizlabs/php_codesniffer": "^3.4",
-        "symfony/security-bundle": "^4.3"
-    },
-    "replace": {
-        "paragonie/random_compat": "*",
-        "symfony/polyfill-ctype": "*",
-        "symfony/polyfill-intl-idn": "*",
-        "symfony/polyfill-mbstring": "*",
-        "symfony/polyfill-php70": "*",
-        "symfony/polyfill-php72": "*",
-        "symfony/polyfill-php73": "*"
+        "squizlabs/php_codesniffer": "^3.4"
     },
     "autoload": {
         "psr-4": {
-            "Descriptive\\": "src/Descriptive"
+            "Mrhn\\Descriptive\\": "src/Descriptive"
         }
     },
     "autoload-dev": {
@@ -60,5 +50,12 @@
         "coverage": [
             "vendor/bin/phpunit --coverage-html coverage"
         ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Mrhn\\Descriptive\\ServiceProvider"
+            ]
+        }
     }
 }

@@ -1,8 +1,8 @@
 <?php namespace Tests\Unit;
 
-use Descriptive\Models\Api;
-use Descriptive\Models\Response;
-use Descriptive\Models\Route;
+use Mrhn\Descriptive\Models\Api;
+use Mrhn\Descriptive\Models\Response;
+use Mrhn\Descriptive\Models\Route;
 use PHPUnit\Framework\TestCase;
 
 class OpenApiTest extends TestCase

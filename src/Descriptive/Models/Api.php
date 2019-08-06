@@ -1,4 +1,4 @@
-<?php namespace Descriptive\Models;
+<?php namespace Mrhn\Descriptive\Models;
 
 use Symfony\Component\Yaml\Yaml;
 
