@@ -52,11 +52,17 @@ class DescriptiveCommand extends Command
         $routes = [];
 
         foreach ($routingRoutes as $route) {
+            $path    = '/' . ltrim($route->uri(), '/');
+            $summary = ltrim($route->getActionName(), '\\');
+            if ($route->getName()) {
+                $summary = $route->getName() . ' (' . $summary . ')';
+            }
+
             foreach ($route->methods() as $method) {
                 $routes[] = new Route(
-                    ltrim($route->getActionName(), '\\'),
-                    $route->getName() ?? '',
-                    $route->uri(),
+                    $path . '::' . $method,
+                    $summary,
+                    $path,
                     mb_strtolower($method),
                     null,
                     [new Response(200, '')]
