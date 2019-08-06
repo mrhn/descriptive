@@ -36,7 +36,7 @@ class Api
                 'version' => $this->version,
             ],
             'paths' => array_reduce($this->routes, function (array $carry, Route $route): array {
-                $carry[$route->path] = $route->toArray();
+                $carry[$route->path][$route->method] = $route->toArray();
 
                 return $carry;
             }, []),

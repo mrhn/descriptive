@@ -44,15 +44,13 @@ class Route
     public function toArray(): array
     {
         return [
-            $this->method => [
-                'operationId' => $this->id,
-                'summary'     => $this->summary,
-                'responses'   => array_reduce($this->responses, function (array $carry, Response $response): array {
-                    $carry[$response->status] = $response->toArray();
+            'operationId' => $this->id,
+            'summary'     => $this->summary,
+            'responses'   => array_reduce($this->responses, function (array $carry, Response $response): array {
+                $carry[$response->status] = $response->toArray();
 
-                    return $carry;
-                }, []),
-            ],
+                return $carry;
+            }, []),
         ];
     }
 }
