@@ -13,11 +13,11 @@
         "illuminate/console": "^5.8",
         "illuminate/routing": "^5.8",
         "illuminate/support": "^5.8",
-        "symfony/yaml": "^4.3"
+        "symfony/yaml": "^4.3",
+        "phpstan/phpstan": "^0.11.12"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.15",
-        "phpstan/phpstan": "^0.11.12",
         "phpstan/phpstan-phpunit": "^0.11.2",
         "phpstan/phpstan-strict-rules": "^0.11.1",
         "phpunit/phpunit": "^8.3",
