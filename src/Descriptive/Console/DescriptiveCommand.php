@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Mrhn\Descriptive\Models\Api;
 use Mrhn\Descriptive\Models\Response;
 use Mrhn\Descriptive\Models\Route;
+use Mrhn\Descriptive\Reflections\ClassReflection;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\Class_;
@@ -72,7 +73,17 @@ class DescriptiveCommand extends Command
         foreach ($routingRoutes as $route) {
             $schemaMap = [];
 
-            $controller = explode('@', $route->action['controller'])[0];
+            $controllerClass = new ClassReflection(explode('@', $route->action['controller'])[0]);
+            $controller = new $controllerClass();
+            $transformer = $controller->transformer;
+
+            $transformer = new ClassReflection(get_class($transformer));
+
+            $transform = $transformer->getMethod('transform');
+            $parameter = $transform->getParameters()[0];
+            $parameter->getType();
+
+
             $class = new \ReflectionClass($controller);
             $fileName = $class->getFileName();
 

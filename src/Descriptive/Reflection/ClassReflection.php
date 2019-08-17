@@ -2,6 +2,8 @@
 
 use ReflectionClass;
 use ReflectionException;
+use ReflectionProperty;
+use ReflectionMethod;
 
 class ClassReflection
 {
@@ -20,9 +22,14 @@ class ClassReflection
 
     }
 
-    public function getProperty()
+    public function getMethod(string $name): ReflectionMethod
     {
+        return $this->reflectionClass->getMethod('transform');
+    }
 
+    public function getProperty(string $name): ReflectionProperty
+    {
+        return $this->reflectionClass->getProperty($name);
     }
 
     public static function resolve(string $class): ?self
