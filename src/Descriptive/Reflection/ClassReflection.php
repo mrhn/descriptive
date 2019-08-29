@@ -1,5 +1,6 @@
-<?php namespace Mrhn\Descriptive\Reflections;
+<?php namespace Mrhn\Descriptive\Reflection;
 
+use PhpDocReader\PhpDocReader;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
@@ -22,14 +23,26 @@ class ClassReflection
 
     }
 
-    public function getMethod(string $name): ReflectionMethod
+    public function getFileName(): string
     {
-        return $this->reflectionClass->getMethod('transform');
+        return $this->reflectionClass->getFileName();
     }
 
-    public function getProperty(string $name): ReflectionProperty
+    public function getMethod(string $name): ReflectionMethod
     {
-        return $this->reflectionClass->getProperty($name);
+        return $this->reflectionClass->getMethod($name);
+    }
+
+    public function getProperty(string $name): PropertyReflection
+    {
+        $property = $this->reflectionClass->getProperty($name);
+
+        return new PropertyReflection($property);
+    }
+
+    public function getDocComment(): string
+    {
+        return $this->reflectionClass->getDocComment();
     }
 
     public static function resolve(string $class): ?self
@@ -44,5 +57,10 @@ class ClassReflection
 
 
         return new static($reflectionClass);
+    }
+
+    public function toInstance()
+    {
+        return $this->reflectionClass->newInstance();
     }
 }

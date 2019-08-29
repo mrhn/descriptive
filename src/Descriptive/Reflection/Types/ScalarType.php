@@ -1,8 +1,6 @@
 <?php
 
-
-namespace Mrhn\Descriptive\Reflections\Types;
-
+namespace Mrhn\Descriptive\Reflection\Types;
 
 class ScalarType extends Type
 {

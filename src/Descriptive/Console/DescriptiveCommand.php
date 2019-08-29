@@ -7,7 +7,8 @@ use Illuminate\Support\Str;
 use Mrhn\Descriptive\Models\Api;
 use Mrhn\Descriptive\Models\Response;
 use Mrhn\Descriptive\Models\Route;
-use Mrhn\Descriptive\Reflections\ClassReflection;
+use Mrhn\Descriptive\Reflection\ClassReflection;
+use PhpDocReader\PhpDocReader;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\Class_;
@@ -73,126 +74,85 @@ class DescriptiveCommand extends Command
         foreach ($routingRoutes as $route) {
             $schemaMap = [];
 
-            $controllerClass = new ClassReflection(explode('@', $route->action['controller'])[0]);
-            $controller = new $controllerClass();
-            $transformer = $controller->transformer;
+            $controllerClass = ClassReflection::resolve(explode('@', $route->action['controller'])[0]);
 
-            $transformer = new ClassReflection(get_class($transformer));
+            $transformer = $controllerClass->getProperty('transformer');
+
+            $transformer = ClassReflection::resolve($transformer->getType());
 
             $transform = $transformer->getMethod('transform');
             $parameter = $transform->getParameters()[0];
-            $parameter->getType();
 
+            $reader = new PhpDocReader();
+            $parameterClass = $reader->getParameterClass($parameter);
 
-            $class = new \ReflectionClass($controller);
-            $fileName = $class->getFileName();
+            $transformInput = ClassReflection::resolve($parameterClass);
 
-            $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
-            try {
-                $ast = $parser->parse(file_get_contents($fileName));
+            $classDocBlock = $transformInput->getDocComment();
 
-                foreach ($ast[0]->stmts as $stmt) {
-                    if ($stmt instanceof Class_) {
-                        foreach ($stmt->stmts as $property) {
-                            if ($property instanceof Property && $property->props[0]->name->name === 'transformer') {
-                                // TODO janky as fuck
-                                $start  = strpos((string) $property->getAttribute('comments')[0], '@var');
-                                $end    = strpos((string) $property->getAttribute('comments')[0], '*/', $start + 1);
-                                $length = $end - $start;
-                                $result = substr((string) $property->getAttribute('comments')[0], $start + 4, $length - 4);
-                                $result = trim($result);
+            $docLines = explode("\n", $classDocBlock);
+            $scopedParameters = [];
+            foreach ($docLines as $line) {
+                if (Str::contains($line, '$')) {
+                    $scopedParameters[$parameter->getName()][$this->stringBetween($line, '$',
+                        '')] = $this->stringBetween($line, '@property', '$');
+                }
+            }
 
-                                foreach($ast[0]->stmts as $use) {
-                                    if ($use instanceof Use_&& end($use->uses[0]->name->parts) === $result) {
-                                        $class = implode('\\', $use->uses[0]->name->parts);
-                                        $reflection = new \ReflectionClass($class);
-                                        $fileName = $reflection->getFileName();
+            try
+            {
+                $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+                $ast = $parser->parse(file_get_contents($transformer->getFileName()));
 
-                                        $containerFactory = new ContainerFactory(__DIR__);
-                                        $containerFactory->create(__DIR__, [], []);
-                                        $broker = Broker::getInstance();
-                                        $class = $broker->getClass($class);
-                                        $scope = $broker->getClass(Scope::class);
+                // find array items
+                foreach ($ast[0] as $value) {
+                    if (is_array($value)) {
+                        foreach ($value as $item) {
+                            if ($item instanceof Class_) {
+                                /** @var Array_ $array */
+                                $array = $array = $item->stmts[0]->stmts[0]->expr;
 
-                                        $method = $class->getNativeMethod('transform');
+                                $propertyAccessses = [];
+                                foreach ($array->items as $item) {
+                                    $calls = [];
+                                    $access = $item->value;
 
-                                        /** @var PhpParameterReflection $parameter */
-                                        $parameter = $method->getVariants()[0]->getParameters()[0];
-
-                                        $modelClass = $broker->getClass($parameter->getType()->getReferencedClasses()[0]);
-                                        $modelClassReflection = new \ReflectionClass($parameter->getType()->getReferencedClasses()[0]);
-                                        $classDocBlock = $modelClassReflection->getDocComment();
-
-                                        $docLines = explode("\n", $classDocBlock);
-                                        $scopedParameters = [];
-                                        foreach ($docLines as $line) {
-                                            if (Str::contains($line, '$')){
-                                                $scopedParameters[$parameter->getName()][$this->stringBetween($line, '$', '')] = $this->stringBetween($line, '@property', '$');
-                                            }
-                                        }
-
-                                        try {
-                                            $ast = $parser->parse(file_get_contents($fileName));
-
-                                            // find array items
-                                            foreach ($ast[0] as $value) {
-                                                if (is_array($value)) {
-                                                    foreach ($value as $item) {
-                                                        if ($item instanceof Class_) {
-                                                            /** @var Array_ $array */
-                                                            $array = $array = $item->stmts[0]->stmts[0]->expr;
-
-                                                            $propertyAccessses = [];
-                                                            foreach ($array->items as $item) {
-                                                                $calls = [];
-                                                                $access = $item->value;
-
-                                                                while ($access->name instanceof Identifier) {
-                                                                    $calls[] = $access->name->name;
-                                                                    $access = $access->var;
-                                                                }
-
-                                                                $calls[] = $access->name;
-
-                                                                $schemaMap[$item->key->value] = $calls;
-                                                            }
-
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                        }
-                                        catch (Error $error) {
-                                            echo "Parse error: {$error->getMessage()}\n";
-                                            return [];
-                                        }
-
-                                        foreach ($schemaMap as $key => $value) {
-
-                                            $accessses = array_reverse($value);
-
-                                            $tmpAccess = $scopedParameters;
-                                            foreach ($accessses as $access) {
-                                                $tmpAccess = $tmpAccess[$access];
-                                            }
-
-                                            $schemaMap[$key] = $tmpAccess;
-                                        }
-
-                                        dd($schemaMap);
+                                    while ($access->name instanceof Identifier) {
+                                        $calls[] = $access->name->name;
+                                        $access = $access->var;
                                     }
+
+                                    $calls[] = $access->name;
+
+                                    $schemaMap[$item->key->value] = $calls;
                                 }
+
                             }
                         }
                     }
                 }
+
             } catch (Error $error) {
                 echo "Parse error: {$error->getMessage()}\n";
                 return [];
             }
 
-            $path    = '/' . ltrim($route->uri(), '/');
+            foreach ($schemaMap as $key => $value) {
+
+                $accessses = array_reverse($value);
+
+                $tmpAccess = $scopedParameters;
+                foreach ($accessses as $access) {
+                    $tmpAccess = $tmpAccess[$access];
+                }
+
+                $schemaMap[$key] = $tmpAccess;
+            }
+
+            dd($schemaMap);
+
+
+            $path = '/' . ltrim($route->uri(), '/');
             $summary = ltrim($route->getActionName(), '\\');
             if ($route->getName()) {
                 $summary = $route->getName() . ' (' . $summary . ')';
@@ -213,7 +173,11 @@ class DescriptiveCommand extends Command
         return $routes;
     }
 
-    private function stringBetween($string, $start, $end){
+    private function stringBetween(
+        $string,
+        $start,
+        $end
+    ) {
         $sp = strpos($string, $start) + strlen($start);
         if (empty($end)) {
             $ep = strlen($string);

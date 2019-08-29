@@ -13,8 +13,9 @@
         "illuminate/console": "^5.8",
         "illuminate/routing": "^5.8",
         "illuminate/support": "^5.8",
-        "symfony/yaml": "^4.3",
-        "phpstan/phpstan": "^0.11.12"
+        "php-di/phpdoc-reader": "^2.1",
+        "phpstan/phpstan": "^0.11.12",
+        "symfony/yaml": "^4.3"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.15",
