@@ -40,6 +40,14 @@ class ClassReflection
         return new PropertyReflection($property);
     }
 
+    public function getPropertyClass(string $name): PropertyReflection
+    {
+        $reader = new PhpDocReader();
+
+        // todo call mrhn phpdocreader library
+        return $reader->getPropertyClass();
+    }
+
     public function getDocComment(): string
     {
         return $this->reflectionClass->getDocComment();

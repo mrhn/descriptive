@@ -3,11 +3,14 @@
 use Illuminate\Console\Command;
 use Illuminate\Routing\RouteCollection;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Mrhn\Descriptive\Models\Api;
 use Mrhn\Descriptive\Models\Response;
 use Mrhn\Descriptive\Models\Route;
 use Mrhn\Descriptive\Reflection\ClassReflection;
+use Mrhn\Descriptive\Reflection\Types\ClassType;
+use Mrhn\Descriptive\Reflection\Types\ScalarType;
 use PhpDocReader\PhpDocReader;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Identifier;
@@ -102,7 +105,6 @@ class DescriptiveCommand extends Command
 
     private function guessModelSchema(\Illuminate\Routing\Route $route)
     {
-        $schemaMap = [];
 
         $controllerClass = ClassReflection::resolve(explode('@', $route->action['controller'])[0]);
 
@@ -114,25 +116,19 @@ class DescriptiveCommand extends Command
         $parameter = $transform->getParameters()[0];
 
         $reader = new PhpDocReader();
+
         $parameterClass = $reader->getParameterClass($parameter);
 
-        $transformInput = ClassReflection::resolve($parameterClass);
-
-        $classDocBlock = $transformInput->getDocComment();
-
-        $docLines = explode("\n", $classDocBlock);
-        $scopedParameters = [];
-        foreach ($docLines as $line) {
-            if (Str::contains($line, '$')) {
-                $scopedParameters[$parameter->getName()][$this->stringBetween($line, '$','')] = $this->stringBetween($line, '@property', '$');
-            }
-        }
+        $scopedParameters = [
+            $parameter->getName() => new ClassType($parameter->getName(), )
+        ];
 
         try
         {
             $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
             $ast = $parser->parse(file_get_contents($transformer->getFileName()));
 
+            $accesses = [];
             // find array items
             foreach ($ast[0] as $value) {
                 if (is_array($value)) {
@@ -152,28 +148,40 @@ class DescriptiveCommand extends Command
 
                                 $calls[] = $access->name;
 
-                                $schemaMap[$item->key->value] = $calls;
+                                $accesses[] = $calls;
                             }
-
                         }
                     }
                 }
             }
+
+
 
         } catch (Error $error) {
             echo "Parse error: {$error->getMessage()}\n";
             return [];
         }
 
-        foreach ($schemaMap as $key => $value) {
-            $accesses = array_reverse($value);
+        dd($scopedParameters);
+
+        foreach ($accesses as $access) {
+            $parameterName = array_pop($access);
+            $parameterAccesses = array_reverse($access);
 
             $tmpAccess = $scopedParameters;
-            foreach ($accesses as $access) {
+
+            foreach ($parameterAccesses as $access) {
                 $tmpAccess = $tmpAccess[$access];
+                if ($tmpAccess instanceof ScalarType) {
+                    $tmpAccess = (string) $tmpAccess;
+                }
+
+                if ($tmpAccess instanceof ClassType) {
+                    $tmpAccess = $tmpAccess->resolve();
+                }
             }
 
-            $schemaMap[$key] = $tmpAccess;
+            $schemaMap[$parameterName] = $tmpAccess;
         }
 
         return $schemaMap;
