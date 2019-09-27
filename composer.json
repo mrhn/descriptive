@@ -13,9 +13,9 @@
         "illuminate/console": "^5.8",
         "illuminate/routing": "^5.8",
         "illuminate/support": "^5.8",
-        "php-di/phpdoc-reader": "^2.1",
         "phpstan/phpstan": "^0.11.12",
-        "symfony/yaml": "^4.3"
+        "symfony/yaml": "^4.3",
+        "mrhn/phpdoc-reader": "dev-master"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.15",
@@ -37,6 +37,12 @@
     "config": {
         "sort-packages": true
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/mrhn/PhpDocReader"
+        }
+    ],
     "scripts": {
         "check": [
             "vendor/bin/php-cs-fixer fix --ansi",

@@ -110,7 +110,8 @@ class DescriptiveCommand extends Command
 
         $transformer = $controllerClass->getProperty('transformer');
 
-        $transformer = ClassReflection::resolve($transformer->getType());
+        $transformerClass = $transformer->getType();
+        $transformer = ClassReflection::resolve($transformerClass);
 
         $transform = $transformer->getMethod('transform');
         $parameter = $transform->getParameters()[0];
@@ -120,7 +121,7 @@ class DescriptiveCommand extends Command
         $parameterClass = $reader->getParameterClass($parameter);
 
         $scopedParameters = [
-            $parameter->getName() => new ClassType($parameter->getName(), )
+            $parameter->getName() => new ClassType($parameter->getName(), $transformerClass)
         ];
 
         try
@@ -161,8 +162,6 @@ class DescriptiveCommand extends Command
             echo "Parse error: {$error->getMessage()}\n";
             return [];
         }
-
-        dd($scopedParameters);
 
         foreach ($accesses as $access) {
             $parameterName = array_pop($access);

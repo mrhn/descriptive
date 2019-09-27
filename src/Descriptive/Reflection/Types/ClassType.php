@@ -32,12 +32,12 @@ class ClassType extends Type
                 $parameterType = $this->stringBetween($line, '@property', '$');
 
                 $classReflection = ClassReflection::resolve($this->class);
-                $parameterType = $classReflection->getProperty($parameterName)->getType();
+                $parameterType = $classReflection->getPropertyType($parameterName);
 
                 if (in_array($parameterType, ['int', 'string', 'float', 'array'])) {
                     $parameterClass = new ScalarType($parameterType);
                 } else {
-                    $parameterClass = new ClassType($parameterType, );
+                    $parameterClass = new ClassType($parameterName, $this->class);
                 }
                 $scopedParameters[$parameterName] = $parameterClass;
             }
