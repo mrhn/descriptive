@@ -20,6 +20,6 @@ class PropertyReflection
     {
         $reader = new PhpDocReader();
 
-        return $reader->getPropertyClass($this->reflectionProperty);
+        return $reader->getPropertyClass($this->reflectionProperty->getDeclaringClass()->getName(), $this->reflectionProperty->getName());
     }
 }

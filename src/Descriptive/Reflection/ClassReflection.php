@@ -18,6 +18,11 @@ class ClassReflection
         $this->reflectionClass = $class;
     }
 
+    public function getName()
+    {
+        return $this->reflectionClass->getName();
+    }
+
     public function hasProperty()
     {
 
@@ -40,11 +45,11 @@ class ClassReflection
         return new PropertyReflection($property);
     }
 
-    public function getPropertyType(string $name): PropertyReflection
+    public function getPropertyType(string $name): string
     {
         $reader = new PhpDocReader();
 
-        return $reader->getPropertyTypeOptimistic($this->reflectionClass, $name);
+        return $reader->getPropertyTypeOptimistic($this->reflectionClass->getName(), $name);
     }
 
     public function getDocComment(): string

@@ -17,7 +17,7 @@ use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\Use_;
-use PhpParser\Node\VarLikeIdentifier;
+use PhpParser\Node\Var½LikeIdentifier;
 use PhpParser\ParserFactory;
 use PHPStan\Analyser\Scope;
 use PHPStan\Analyser\ScopeFactory;
@@ -121,7 +121,7 @@ class DescriptiveCommand extends Command
         $parameterClass = $reader->getParameterClass($parameter);
 
         $scopedParameters = [
-            $parameter->getName() => new ClassType($parameter->getName(), $transformerClass)
+            $parameter->getName() => new ClassType($parameter->getClass()->getName())
         ];
 
         try
@@ -140,14 +140,17 @@ class DescriptiveCommand extends Command
 
                             foreach ($array->items as $item) {
                                 $calls = [];
+                                $calls[] = $item->key->value;
+
                                 $access = $item->value;
 
+                                $resolveAccesses = [];
                                 while ($access->name instanceof Identifier) {
-                                    $calls[] = $access->name->name;
+                                    $resolveAccesses[] = $access->name->name;
                                     $access = $access->var;
                                 }
-
-                                $calls[] = $access->name;
+                                $resolveAccesses[] = $access->name;
+                                $calls = array_merge($calls, array_reverse($resolveAccesses));
 
                                 $accesses[] = $calls;
                             }
@@ -164,12 +167,12 @@ class DescriptiveCommand extends Command
         }
 
         foreach ($accesses as $access) {
-            $parameterName = array_pop($access);
-            $parameterAccesses = array_reverse($access);
+            $parameterName = $access[0];
+            unset($access[0]);
 
             $tmpAccess = $scopedParameters;
 
-            foreach ($parameterAccesses as $access) {
+            foreach ($access as $access) {
                 $tmpAccess = $tmpAccess[$access];
                 if ($tmpAccess instanceof ScalarType) {
                     $tmpAccess = (string) $tmpAccess;
@@ -184,22 +187,5 @@ class DescriptiveCommand extends Command
         }
 
         return $schemaMap;
-    }
-
-
-    private function stringBetween(
-        $string,
-        $start,
-        $end
-    ) {
-        $sp = strpos($string, $start) + strlen($start);
-        if (empty($end)) {
-            $ep = strlen($string);
-        } else {
-            $ep = strpos($string, $end) - $sp;
-        }
-
-        $data = trim(substr($string, $sp, $ep));
-        return trim($data);
     }
 }
