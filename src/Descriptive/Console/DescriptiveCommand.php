@@ -13,6 +13,7 @@ use Mrhn\Descriptive\Reflection\Types\ClassType;
 use Mrhn\Descriptive\Reflection\Types\ScalarType;
 use PhpDocReader\PhpDocReader;
 use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Property;
@@ -138,11 +139,24 @@ class DescriptiveCommand extends Command
                             /** @var Array_ $array */
                             $array = $array = $item->stmts[0]->stmts[0]->expr;
 
+
+
                             foreach ($array->items as $item) {
                                 $calls = [];
+
                                 $calls[] = $item->key->value;
 
                                 $access = $item->value;
+
+                                if ($access instanceof FuncCall) {
+                                    $function = new \ReflectionFunction($access->name->parts[0]);
+
+                                    if ($function->isInternal()) {
+                                        $calls[] = new ScalarType('null');
+                                    }
+
+                                    $calls[] = new ScalarType($function->getReturnType()->getName());
+                                }
 
                                 $resolveAccesses = [];
                                 while ($access->name instanceof Identifier) {
@@ -172,10 +186,11 @@ class DescriptiveCommand extends Command
 
             $tmpAccess = $scopedParameters;
 
-            foreach ($access as $access) {
-                $tmpAccess = $tmpAccess[$access];
+            foreach ($access as $lAccess) {
+                $tmpAccess = $tmpAccess[$lAccess];
                 if ($tmpAccess instanceof ScalarType) {
                     $tmpAccess = (string) $tmpAccess;
+                    break;
                 }
 
                 if ($tmpAccess instanceof ClassType) {
